@@ -16,4 +16,6 @@ RUN apt install -y ganeti ganeti-os-noop net-tools
 RUN apt clean
 
 ADD entrypoint.sh /entrypoint.sh
+ADD start-gnt-rapi.sh /start-gnt-rapi.sh
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/start-gnt-rapi.sh"]

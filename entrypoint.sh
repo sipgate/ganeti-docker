@@ -70,8 +70,9 @@ export GANETI_ROOTDIR=/opt/ganeti-vcluster//node1
 export HOME=/var/lib/ganeti
 export GANETI_HOSTNAME=node1
 echo "gnt-cc {HA1}2ac2878ee230f34cd08e5f95ccc0e664 write" > /opt/ganeti-vcluster/node1/var/lib/ganeti/rapi/users
-su --preserve-environment -s /bin/bash -c "/usr/bin/python /usr/sbin/ganeti-rapi --debug -b 0.0.0.0 -f" gnt-rapi
 
 echo
 echo "You can now access the RAPI at https://gnt-cc:gnt-cc@${HOSTNAME}:5080/"
 echo
+
+exec $@

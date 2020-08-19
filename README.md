@@ -1,3 +1,11 @@
+# A docker container running a ganeti virtual/fake cluster
+
+This is a debian 10 container running a virtual ganeti cluster.
+You can expose the RAPI on Port 5080 to interact with the cluster.
+
+## Install
+You can use docker packages to pull the image or build it yourself.
+
 ## Howto build
 
 ```

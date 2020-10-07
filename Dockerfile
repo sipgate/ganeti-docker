@@ -12,7 +12,7 @@ FROM debian:10
 
 # Setup Flatpak
 RUN apt update
-RUN apt install -y ganeti ganeti-os-noop net-tools
+RUN apt install --no-install-recommends -y ganeti ganeti-os-noop net-tools
 RUN apt clean
 
 ADD entrypoint.sh /entrypoint.sh

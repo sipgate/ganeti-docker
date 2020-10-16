@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[ -d "/opt/ganeti-vcluster" ]
+cluster_initialized=$?
+
 set -e
 
 echo "Update /etc/hosts"
@@ -26,43 +29,55 @@ echo "Setup interfaces"
 ip link add gnt type dummy
 ip link set dev gnt up
 
-echo "Init Cluster"
-mkdir /opt/ganeti-vcluster
-cd /usr/lib/ganeti/tools/
-./vcluster-setup -E -c 5 -n gnt /opt/ganeti-vcluster
-cd /opt/ganeti-vcluster && node1/cmd gnt-cluster init --no-etc-hosts \
-    --no-ssh-init --master-netdev=lo \
-    --enabled-disk-templates=diskless --enabled-hypervisors=fake \
-    --ipolicy-bounds-specs=min:disk-size=0,cpu-count=1,disk-count=0,memory-size=1,nic-count=0,spindle-use=0/max:disk-size=1048576,cpu-count=8,disk-count=16,memory-size=32768,nic-count=8,spindle-use=12 \
-    cluster
+if [ $cluster_initialized -eq 0 ] 
+then
+    echo "A cluster already exists. Skipping cluster creation."
+else
+    echo "Init Cluster"
+    mkdir /opt/ganeti-vcluster
+    cd /usr/lib/ganeti/tools/
+    ./vcluster-setup -E -c 5 -n gnt /opt/ganeti-vcluster
+    cd /opt/ganeti-vcluster && node1/cmd gnt-cluster init --no-etc-hosts \
+        --no-ssh-init --master-netdev=lo \
+        --enabled-disk-templates=diskless --enabled-hypervisors=fake \
+        --ipolicy-bounds-specs=min:disk-size=0,cpu-count=1,disk-count=0,memory-size=1,nic-count=0,spindle-use=0/max:disk-size=1048576,cpu-count=8,disk-count=16,memory-size=32768,nic-count=8,spindle-use=12 \
+        cluster
 
-chown root:root /opt/ganeti-vcluster/node1/var/run/ganeti/*.pid
+    chown root:root /opt/ganeti-vcluster/node1/var/run/ganeti/*.pid
+fi
 
 echo "Start Cluster"
+cd /opt/ganeti-vcluster
 ./start-all
 
-echo "Generate SSH Key"
-ssh-keygen -f /root/.ssh/id_rsa -N ""
-cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys
-service ssh start
-ssh-keyscan cluster >> /root/.ssh/known_hosts
+echo "Init Cluster"
+if [ $cluster_initialized -eq 0 ] 
+then
+    echo "A cluster already exists. Skipping SSH Key, Node and Instance creation." 
+else
+    echo "Generate SSH Key"
+    ssh-keygen -f /root/.ssh/id_rsa -N ""
+    cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys
+    service ssh start
+    ssh-keyscan cluster >> /root/.ssh/known_hosts
 
-echo "Add four more nodes to the cluster..."
-./node1/cmd gnt-node add --no-ssh-key-check node2
-./node1/cmd gnt-node add --no-ssh-key-check node3
-./node1/cmd gnt-node add --no-ssh-key-check node4
-./node1/cmd gnt-node add --no-ssh-key-check node5
+    echo "Add four more nodes to the cluster..."
+    ./node1/cmd gnt-node add --no-ssh-key-check node2
+    ./node1/cmd gnt-node add --no-ssh-key-check node3
+    ./node1/cmd gnt-node add --no-ssh-key-check node4
+    ./node1/cmd gnt-node add --no-ssh-key-check node5
 
-# add fake instances
-echo "Create a bunch of instances..."
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics homer
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics bart
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics marge
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics lisa
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics burns
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics milhouse
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics moe
-./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics smithers
+    # add fake instances
+    echo "Create a bunch of instances..."
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics homer
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics bart
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics marge
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics lisa
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics burns
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics milhouse
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics moe
+    ./node1/cmd gnt-instance add -t diskless --no-ip-check --no-name-check --no-install -o noop --no-nics smithers
+fi
 
 echo "Restart RAPI"
 pkill ganeti-rapi

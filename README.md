@@ -1,6 +1,6 @@
 # A docker container running a ganeti virtual/fake cluster
 
-This is a debian 10 container running a virtual ganeti cluster.
+This is a debian 12 container running a virtual ganeti cluster.
 You can expose the RAPI on Port 5080 to interact with the cluster.
 
 ## Install

@@ -1,4 +1,4 @@
-FROM debian:10
+FROM debian:12
 
 # LABEL version="0.1"
 # LABEL "com.github.actions.name"="Flatpak Builder"

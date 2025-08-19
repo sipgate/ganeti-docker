@@ -12,7 +12,7 @@ FROM debian:12
 
 # Setup Flatpak
 RUN apt update
-RUN apt install --no-install-recommends -y ganeti ganeti-os-noop net-tools
+RUN apt install --no-install-recommends -y ganeti ganeti-os-noop net-tools python-is-python3
 RUN apt clean
 
 ADD entrypoint.sh /entrypoint.sh

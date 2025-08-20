@@ -33,4 +33,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: sipgate/ganeti-docker:latest,sipgate/ganeti-docker:bookworm
+          tags: ghcr.io/sipgate/ganeti-docker:latest,ghcr.io/sipgate/ganeti-docker:bookworm

@@ -1,19 +1,6 @@
 FROM debian:12
 
-# LABEL version="0.1"
-# LABEL "com.github.actions.name"="Flatpak Builder"
-# LABEL "com.github.actions.description"="Build your flatpak project"
-# LABEL "com.github.actions.icon"="package"
-# LABEL "com.github.actions.color"="blue"
-
-# LABEL "repository"="https://github.com/bilelmoussaoui/flatpak-github-actions"
-# LABEL "homepage"="https://github.com/bilelmoussaoui/flatpak-github-actions"
-# LABEL "maintainer"="Bilal Elmoussaoui<bil.elmoussaoui@gmail.com>"
-
-# Setup Flatpak
-RUN apt update
-RUN apt install --no-install-recommends -y ganeti ganeti-os-noop net-tools python-is-python3
-RUN apt clean
+RUN apt update && apt install --no-install-recommends -y ganeti ganeti-os-noop net-tools python-is-python3 && apt clean
 
 ADD entrypoint.sh /entrypoint.sh
 ADD start-gnt-rapi.sh /start-gnt-rapi.sh
